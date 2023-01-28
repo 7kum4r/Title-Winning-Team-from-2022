@@ -1,0 +1,19 @@
+alter table fifa_2022 add positions varchar(20); 
+update fifa_2022 set positions = (select thing from (select sofifa_id,case when substring(player_positions,1,3) 
+LIKE '%;' then substring(player_positions,1,2) else substring(player_positions,1,3) end as thing from fifa_2022 order by overall desc) as tem 
+where fifa_2022.sofifa_id = tem.sofifa_id);
+
+alter table fifa_2022 add club_2021 varchar(20); 
+update fifa_2022 set club_2021 = (select club_name from fifa_2021 where fifa_2022.sofifa_id = fifa_2021.sofifa_id);
+alter table fifa_2022 add club_2020 varchar(20); 
+update fifa_2022 set club_2020 = (select club_name from fifa_2020 where fifa_2022.sofifa_id = fifa_2020.sofifa_id);
+alter table fifa_2022 add club_2019 varchar(20); 
+update fifa_2022 set club_2019 = (select club_name from fifa_2019 where fifa_2022.sofifa_id = fifa_2019.sofifa_id);
+alter table fifa_2022 add club_2018 varchar(20); 
+update fifa_2022 set club_2018 = (select club_name from fifa_2018 where fifa_2022.sofifa_id = fifa_2018.sofifa_id);
+alter table fifa_2022 add club_2017 varchar(20); 
+update fifa_2022 set club_2017 = (select club_name from fifa_2017 where fifa_2022.sofifa_id = fifa_2017.sofifa_id);
+alter table fifa_2022 add club_2021 varchar(20); 
+update fifa_2022 set club_2016 = (select club_name from fifa_2016 where fifa_2022.sofifa_id = fifa_2016.sofifa_id);
+alter table fifa_2022 add club_2015 varchar(20); 
+update fifa_2022 set club_2015 = (select club_name from fifa_2015 where fifa_2022.sofifa_id = fifa_2015.sofifa_id);
