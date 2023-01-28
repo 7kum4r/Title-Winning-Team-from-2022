@@ -7,21 +7,24 @@ import mysql.connector
 import pandas as pd
 
 
-con = mysql.connector.connect(host="localhost", user="---", password="---")
+con = mysql.connector.connect(host="localhost", user="root", password="----")
 cursorObject = con.cursor()
 cursorObject.execute("USE fifa")
 
 pos=[[33,48,2,17],
      [3,18,25,40],[24,39,25,40],[43,58,25,40],[62,77,25,40],
      [15,30,52,67],[50,65,52,67],
-     [10,25,78,93],[33,48,78,93],[55,70,78,93],
+     [10,25,78,93],[33,48,78,93],[56,71,78,93],
      [33,48,100,115]]
 
-data=pd.read_csv('C:/Users/manas/Desktop/answer.csv')
-urls=[]
-names=[]
+with open('coder.txt','r')as f:
+    query=f.read()
+cursorObject.execute(query)
+data=pd.DataFrame(cursorObject.fetchall())
 
 for t in range(6):
+    urls=[]
+    names=[]
     ids=data.iloc[t,1:12].values
     ids=[str(x) for x in ids]
     for j in ids:
@@ -40,6 +43,7 @@ for t in range(6):
         r_site = urllib.request.Request(urls[i], headers={"User-Agent": "Mozilla/5.0"})
         im = Image.open(urllib.request.urlopen(r_site))
         ax.imshow(im, extent=pos[i])
-        plt.text(pos[i][0]+1,pos[i][2] -2.5, names[i], fontsize = 20,color='red')   
+        plt.text(pos[i][0]+7,pos[i][2] -3.5, names[i], fontsize = 20,
+                 ha='center',color='black',bbox=dict(boxstyle="square"))   
     plt.show()
 
