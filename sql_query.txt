@@ -1,0 +1,107 @@
+select *,rank() over (partition by r order by oall desc,net_pot desc,(net_pace+net_gel/2-net_age) desc) as ranking from
+(
+select case when (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) >=600000000 and (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) <700000000 then '7km'
+			when (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) >=700000000 and (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) <800000000 then '8km' 
+            when (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) >=800000000 and (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) <900000000 then '9km' 
+            when (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) >=900000000 and (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) <1000000000 then '10km'
+            when (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) >=1000000000 and (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) <1100000000 then '11km'
+            when (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) >=1100000000 and (dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) <1250000000 then '12km' end as r,
+dd.aid as gk,	def.aid as lb,def.bid as lcb,def.cid as rcb ,def.did rb, mid.aid lm,mid.bid rm,	att.cid lw,att.did cam,att.bid rw,att.aid st,
+(dd.value_eur+def.value_eur+mid.value_eur+att.value_eur) as net_value,
+dd.avg_overall as dd_all,def.avg_overall as def_all,mid.avg_overall as mid_all,att.avg_overall as att_all,round((dd.avg_overall+def.avg_overall+mid.avg_overall+att.avg_overall)/4,2) as oall,
+dd.name as dd_name,def.name as def_name,mid.name as mid_name,att.name as att_name,
+(dd.gel + def.gel +mid.gel+att.gel) as net_gel,
+round((dd.avg_pot +def.avg_pot + mid.avg_pot + att.avg_pot)/4,1) as net_pot,
+round((dd.avg_age +def.avg_age + mid.avg_age + att.avg_age)/4,2) as net_age,
+round((def.avg_pace + mid.avg_pace + att.avg_pace)/3,2) as net_pace from 
+(
+select * from
+(
+select team.n,team.aid,team.bid,team.cid,group_concat(short_name) as name,team.value_eur,avg(f.potential) AS avg_pot,avg(f.overall),avg(overall) as avg_overall,avg(f.age) as avg_age,avg(f.pace) as avg_pace, avg(f.shooting) as avg_shoot,avg(f.passing) as avg_pass,avg(f.dribbling) as avg_drib,avg(f.defending) as avg_def,avg(f.physic) as avg_phys,
+(count(club_name)-count(distinct club_name)) +(count(club_2021)-count(distinct club_2021)) + (count(club_2020)-count(distinct club_2020)) + (count(club_2019)-count(distinct club_2019)) + (count(club_2018)-count(distinct club_2018)) + (count(club_2017)-count(distinct club_2017)) + (count(club_2016)-count(distinct club_2016)) + (count(club_2015)-count(distinct club_2015)) + (3*(count(nationality_name) -count(distinct nationality_name))) AS gel 
+from 
+(
+with joint_team as(
+with mid AS (select * from fifa_2022 where overall > 80 and (positions = 'GK' or club_position = 'RCB' or club_position='LCB' or club_position='CB'))
+select row_number() over(order by a.sofifa_id+b.sofifa_id+c.sofifa_id) as n,a.sofifa_id AS aid,b.sofifa_id AS bid,c.sofifa_id AS cid, a.value_eur
+from mid as a cross join mid as b cross join mid as c 
+where c.sofifa_id != b.sofifa_id and a.positions = 'GK' 
+and (b.club_position = 'LCB' or b.club_position = 'CB') 
+and (c.club_position='RCB' or c.club_position='CB') order by (a.overall+b.overall+c.overall) desc limit 10000)
+select *,aid as player_id from joint_team union select *,bid as player_id from joint_team union select *,cid as player_id from joint_team
+) 
+AS team join fifa_2022 as f on f.sofifa_id=team.player_id group by n order by gel desc limit 1000
+) as tempo order by avg_overall desc limit 100
+) as dd
+join 
+(
+select * from
+(
+select team.n,team.aid,team.bid,team.cid,team.did,team.eid,group_concat(short_name) as name,team.value_eur,avg(f.overall) avg_overall,avg(f.potential) AS avg_pot,avg(f.age) as avg_age,avg(f.pace) as avg_pace, avg(f.shooting) as avg_shoot,avg(f.passing) as avg_pass,avg(f.dribbling) as avg_drib,avg(f.defending) as avg_def,avg(f.physic) as avg_phys,
+(count(club_name)-count(distinct club_name)) +(count(club_2021)-count(distinct club_2021)) + (count(club_2020)-count(distinct club_2020)) + (count(club_2019)-count(distinct club_2019)) + (count(club_2018)-count(distinct club_2018)) + (count(club_2017)-count(distinct club_2017)) + (count(club_2016)-count(distinct club_2016)) + (count(club_2015)-count(distinct club_2015)) + (3*(count(nationality_name) -count(distinct nationality_name))) AS gel 
+from 
+(
+with joint_team as(
+with mid AS (select sofifa_id,overall,club_position,positions,defending,value_eur from fifa_2022 where overall > 82 and (club_position = 'RCB' or club_position='LCB' or club_position='LB' or club_position='RB' or club_position='CB' or club_position='RWB' or club_position='LWB' or positions ="CDM" or positions ="CM"))
+select row_number() over(order by a.sofifa_id+b.sofifa_id+c.sofifa_id+d.sofifa_id+e.sofifa_id) as n,a.sofifa_id AS aid,b.sofifa_id AS bid,c.sofifa_id AS cid,d.sofifa_id AS did,e.sofifa_id AS eid,(a.value_eur+b.value_eur+c.value_eur+d.value_eur) as value_eur
+from mid as a cross join mid as b cross join mid as c cross join mid as d cross join mid as e
+where b.sofifa_id != c.sofifa_id    
+and (a.club_position = 'LWB' or a.club_position ="LB") 
+and (b.club_position = 'LCB' or b.club_position = 'CB') and b.defending >84
+#(select short_name,defending from fifa_2022 where positions='CB' or positions='LCB' order by defending desc limit 20)
+and (c.club_position='RCB' or c.club_position='CB') and c.defending >84
+and (d.club_position='RWB' or d.club_position ="RB")
+and (e.positions ="CDM" or e.positions='CM') and e.defending>80 order by (a.overall+b.overall+c.overall+d.overall+e.overall) desc limit 8000)
+select *,aid as player_id from joint_team union select *,bid as player_id from joint_team union select *,cid as player_id from joint_team 
+union select *,did as player_id from joint_team union select *,eid as player_id from joint_team
+) 
+AS team join fifa_2022 as f on f.sofifa_id=team.player_id group by n order by gel desc limit 3000
+) as tempo order by (avg_overall+avg_pot+avg_def+avg_pace+avg_phys-avg_age) desc limit 300
+) as def
+join
+(
+select * from
+(
+select team.n,team.aid,team.bid,team.cid,group_concat(short_name) as name,team.value_eur,team.avg_overall,avg(f.age) as avg_age, avg(f.potential) as avg_pot,avg(f.pace) as avg_pace, avg(f.shooting) as avg_shoot,avg(f.passing) as avg_pass,avg(f.dribbling) as avg_drib,avg(f.defending) as avg_def,avg(f.physic) as avg_phys,
+(count(club_name)-count(distinct club_name)) +(count(club_2021)-count(distinct club_2021)) + (count(club_2020)-count(distinct club_2020)) + (count(club_2019)-count(distinct club_2019)) + (count(club_2018)-count(distinct club_2018)) + (count(club_2017)-count(distinct club_2017)) + (count(club_2016)-count(distinct club_2016)) + (count(club_2015)-count(distinct club_2015)) + (3*(count(nationality_name) -count(distinct nationality_name))) AS gel 
+from 
+(
+with joint_team as(
+with mid AS (select sofifa_id,overall,positions,defending,passing,value_eur from fifa_2022 where overall > 82 and (positions = 'LM' or positions = 'RM' or positions='CM' or positions='CDM' or positions='CAM'))
+select row_number() over(order by a.sofifa_id+b.sofifa_id+c.sofifa_id) as n,a.sofifa_id AS aid,b.sofifa_id AS bid,c.sofifa_id AS cid,(a.overall+b.overall+c.overall)/3 as avg_overall,(a.value_eur+b.value_eur) as value_eur
+from mid as a cross join mid as b cross join mid as c 
+where b.sofifa_id != a.sofifa_id and c.sofifa_id != b.sofifa_id and c.sofifa_id != a.sofifa_id   
+and (a.positions ="CDM" or a.positions ="CM" ) and a.defending >80 
+and (b.positions='CM' or b.positions='RM' or b.positions ="LM") and b.passing > '75' #(select short_name,passing from fifa_2022 where positions='CAM' or positions='CM' order by passing desc limit 20)
+and (c.positions='CAM' or c.positions='CM') and c.passing >'82' order by (a.overall+b.overall+c.overall) desc limit 3000)
+select *,aid as player_id from joint_team union select *,bid as player_id from joint_team union select *,cid as player_id from joint_team
+) 
+AS team join fifa_2022 as f on f.sofifa_id=team.player_id group by n order by gel desc limit 2000
+) as tempo order by (avg_overall+avg_pot+avg_pass+avg_def/3+avg_pace/2+avg_drib/2) desc limit 200
+) as mid
+join 
+(
+select * from 
+(select team.n,team.aid,team.bid,team.cid,team.did,team.value_eur,group_concat(short_name) as name,avg(f.overall) as avg_overall,avg(f.age) as avg_age, avg(f.potential) as avg_pot,avg(f.pace) as avg_pace, avg(f.shooting) as avg_shoot,avg(f.passing) as avg_pass,avg(f.dribbling) as avg_drib,avg(f.physic) as avg_phys,
+(count(club_name)-count(distinct club_name)) +(count(club_2021)-count(distinct club_2021)) + (count(club_2020)-count(distinct club_2020)) + (count(club_2019)-count(distinct club_2019)) + (count(club_2018)-count(distinct club_2018)) + (count(club_2017)-count(distinct club_2017)) + (count(club_2016)-count(distinct club_2016)) + (count(club_2015)-count(distinct club_2015)) + (3*(count(nationality_name) -count(distinct nationality_name))) AS gel 
+from 
+(
+with joint_team as(
+with mid AS (select sofifa_id,overall,positions,shooting,value_eur from fifa_2022 where overall > 83 and (positions = 'ST' or positions = 'CF' or positions='LM' or positions='LW' or positions='RM' or positions='RW' or positions='CM' or positions='CAM'))
+select row_number() over(order by a.sofifa_id+b.sofifa_id+c.sofifa_id +d.sofifa_id) as n,a.sofifa_id AS aid,b.sofifa_id AS bid,c.sofifa_id AS cid,d.sofifa_id AS did,(a.value_eur+b.value_eur+c.value_eur+d.value_eur) as value_eur
+from mid AS a cross join mid AS b cross join mid AS c cross join mid AS d
+where b.sofifa_id != c.sofifa_id  
+and (a.positions = 'ST' or a.positions = 'CF') and a.shooting >=86 #(select short_name,shooting from fifa_2022 order by shooting desc limit 20)
+and (b.positions = 'RW' or b.positions = 'RM') 
+and (c.positions = 'LW' or c.positions = 'LM')
+and (d.positions = 'CAM' or d.positions = 'CM') order by (a.overall+b.overall+c.overall+d.overall) desc limit 10000)
+select *,aid as player_id from joint_team union select *,bid as player_id from joint_team union select *,cid as player_id from joint_team union select *,did as player_id from joint_team
+) 
+AS team join fifa_2022 as f on f.sofifa_id=team.player_id group by n order by gel desc limit 1000
+) as tempo order by (avg_overall+avg_pot+avg_drib+avg_pass+avg_shoot+avg_pace) desc limit 100
+)
+as att
+on dd.bid = def.bid and dd.cid = def.cid and def.eid=mid.aid and mid.cid=att.did  
+
+) as temp2 order by ranking asc limit 6
+;
