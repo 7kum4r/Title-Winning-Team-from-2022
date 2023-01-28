@@ -11,16 +11,20 @@ con = mysql.connector.connect(host="localhost", user="root", password="----")
 cursorObject = con.cursor()
 cursorObject.execute("USE fifa")
 
+with open('sql_query.txt','r')as f:
+    query_2=f.read()
+with open('pre_requisite_query.txt','r')as f:
+    query_1=f.read()
+
+cursorObject.execute(query_1)
+cursorObject.execute(query_2)
+data=pd.DataFrame(cursorObject.fetchall())
+
 pos=[[33,48,2,17],
      [3,18,25,40],[24,39,25,40],[43,58,25,40],[62,77,25,40],
      [15,30,52,67],[50,65,52,67],
      [10,25,78,93],[33,48,78,93],[56,71,78,93],
      [33,48,100,115]]
-
-with open('coder.txt','r')as f:
-    query=f.read()
-cursorObject.execute(query)
-data=pd.DataFrame(cursorObject.fetchall())
 
 for t in range(6):
     urls=[]
