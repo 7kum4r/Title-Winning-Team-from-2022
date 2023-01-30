@@ -1,7 +1,9 @@
 ## A TITLE WINNING TEAM FROM 2022
-A dataset of 19k professional players is given, with more than 100+ attributes, a title winning team has to be made out of them, a team that not only win domestic title but also stand out among other title winners at the grand stage of Champions League, a team that doesn’t miss opportunities and neither give opportunities to opponent, could clutch at the last minute, play a beautiful game and at last win and all that on a budget.
+From a dataset of 19k professional players with more than 100+ attributes, a title winning team has to be made out of them, a team that not only win domestic title but also stand out among other title winners at the grand stage of Champions League, a team that doesn’t miss opportunities and neither give opportunities to opponent, could clutch at the last minute, play a beautiful game and at last win and all that on a budget.
 
-![alt text](https://github.com/manu-798/Title-Winning-Team-from-2022/blob/main/1.2b.png?raw=true)
+
+<img src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*cI2bcwBvy-zet8yWzL4a9w.png" width="500">       <img src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*5min_HY1KoQ16OI-u5KUgg.png" width="500">
+
 
 ### pre_requisite_query and sql_query
 Before executing the sql_query which is the main query few features need to filtered, added and cleaned. Those are in pre_requisite query. The article linked at end explains it in detail.
