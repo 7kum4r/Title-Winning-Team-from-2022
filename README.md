@@ -1,7 +1,6 @@
 ## A TITLE WINNING TEAM FROM 2022
 From a dataset of 19k professional players with more than 100+ attributes, a title winning team has to be made out of them, a team that not only win domestic title but also stand out among other title winners at the grand stage of Champions League, a team that doesn’t miss opportunities and neither give opportunities to opponent, could clutch at the last minute, play a beautiful game and at last win and all that on a budget.
 
-Approach, Methodology used is explained in this article - https://medium.com/@manu_798/title-winning-team-of-2022-81937d30b8e1
 
 <img src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*cI2bcwBvy-zet8yWzL4a9w.png" width="400">       <img src="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*5min_HY1KoQ16OI-u5KUgg.png" width="400">
 
